@@ -32,8 +32,7 @@ class TasksList extends Component {
             }
             </tbody>
         </table>
-        <Pagination /> 
-
+        <Pagination />
     </div>
    )
  }

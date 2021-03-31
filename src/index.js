@@ -1,17 +1,52 @@
+import "bootstrap/dist/css/bootstrap.min.css";
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {render} from 'react-dom';
+import {applyMiddleware, compose, createStore} from 'redux';
+import {Provider} from 'react-redux';
+import thunk from 'redux-thunk';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {rootReducer} from './redux/rootReducer'
 
-ReactDOM.render(
-  <React.StrictMode>
+const saveState = (state) => {
+  try {
+       const serialisedState = JSON.stringify(state);
+      window.localStorage.setItem('app_state', serialisedState);
+  } catch (err) {
+
+  }
+};
+
+const loadState = () => {
+  try {
+      const serialisedState = window.localStorage.getItem('app_state');
+      if (!serialisedState) return undefined;
+      return JSON.parse(serialisedState);
+  } catch (err) {
+      return undefined;
+  }
+};
+
+const oldState = loadState();
+const store = createStore(rootReducer,oldState,
+   compose(
+ applyMiddleware(thunk)
+ 
+ //window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__() 
+) 
+)
+
+store.subscribe(() => {
+  saveState(store.getState());
+});
+
+const app = (
+  <Provider store={store}>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+  </Provider>
+)
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+render(app,document.getElementById('root'));
+
 reportWebVitals();
